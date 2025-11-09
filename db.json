@@ -1,31 +1,46 @@
 {
-    "proveedores":[
+  "proveedores": [
     {
-        "id": 1,
-        "razonSocial": "Distribuciones SA",
-        "cuit": "30-12345678-9",
-        "telefono": "+54 11 1234-5678",
-        "email": "ventas@distribuciones.com",
-        "rubro": "Alimentos",
-        "rating": 4
+      "id": 1,
+      "razonSocial": "Distribuciones SA",
+      "cuit": "30-12345678-9",
+      "telefono": "+54 11 1234-5678",
+      "email": "ventas@distribuciones.com",
+      "rubro": "Alimentos",
+      "tipo": "Casa central",
+      "calle": "Av Libertador",
+      "numero": 1234,
+      "localidad": "CABA",
+      "provincia": "Buenos Aires",
+      "pais": "Argentina"
     },
     {
-        "id": 2,
-        "razonSocial": "Suministros SRL",
-        "cuit": "33-87654321-0",
-        "telefono": "+54 11 8765-4321",
-        "email": "info@suministros.com",
-        "rubro": "Limpieza",
-        "rating": 3
+      "razonSocial": "garbarino",
+      "cuit": "12345678912",
+      "telefono": "3815264561",
+      "email": "emiceballoss24@gmail.com",
+      "rubro": "impresoras",
+      "tipo": "CASA CENTRAL",
+      "calle": "calle ",
+      "numero": "123",
+      "localidad": "Tucuman",
+      "provincia": "Tucuman",
+      "pais": "Argentina",
+      "id": 2
     },
     {
-        "id": 3,
-        "razonSocial": "TecnoParts",
-        "cuit": "27-11223344-5",
-        "telefono": "+54 11 1122-3344",
-        "email": "contacto@tecnoparts.com",
-        "rubro": "Electrónica",
-        "rating": 5
+      "razonSocial": "garbarino 2",
+      "cuit": "12345678912",
+      "telefono": "3815264561",
+      "email": "emiceballoss24@gmail.com",
+      "rubro": "impresoras",
+      "tipo": "CASA CENTRAL",
+      "calle": "calle ",
+      "numero": "123",
+      "localidad": "Tucuman",
+      "provincia": "Tucuman",
+      "pais": "Argentina",
+      "id": 3
     }
-]
+  ]
 }

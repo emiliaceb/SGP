@@ -7,6 +7,9 @@ import Proveedores from "./components/Pages/Proveedores";
 import FormularioNuevoProveedor from "./components/Pages/Proveedor/FormularioNuevoProveedor";
 import Equipos from "./components/Pages/Equipos";
 import Ordenes from "./components/Pages/Ordenes";
+import Contratos from "./components/Pages/Contratos";
+import Calificaciones from "./components/Pages/Calificaciones"; 
+import Tecnicos from "./components/Pages/Tecnicos";
 
 
 function App() {
@@ -26,7 +29,9 @@ function App() {
             <Route path="/proveedores/formularionuevoproveedor" element={<FormularioNuevoProveedor />} />
             <Route path="/equipos" element={<Equipos />} />
             <Route path="/ordenes" element={<Ordenes />} />
-            
+            <Route path="/contratos" element={<Contratos />} />
+            <Route path="/calificaciones" element={<Calificaciones />} />
+            <Route path="/tecnicos" element={<Tecnicos />} />
           </Routes>
         </main>
       </div>

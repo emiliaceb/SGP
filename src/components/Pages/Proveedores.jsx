@@ -46,16 +46,16 @@ export default function Proveedores() {
 		<div className="p-4">
 			<div className="d-flex align-items-center justify-content-between mb-3">
 				<h2 className="mb-0">Proveedores</h2>
-				<div>
-					<Link to="/proveedores/formularionuevoproveedor" className="btn btn-primary">Agregar proveedor</Link>
-				</div>
-			</div>
-
-			<div className="mb-3">
-				<InputGroup>
+				<InputGroup style={{ width: '50%', maxWidth: 900 }}>
 					<Form.Control placeholder="Buscar por id, razón social, CUIT, teléfono, email o rubro..." value={q} onChange={(e) => setQ(e.target.value)} />
 					<Button variant="outline-secondary" onClick={() => setQ('')}>Limpiar</Button>
 				</InputGroup>
+			</div>
+
+			<div className="mb-3">
+				<div className="d-flex justify-content-end">
+					<Link to="/proveedores/formularionuevoproveedor" className="btn btn-primary">Agregar proveedor</Link>
+				</div>
 			</div>
 
 			<Table responsive hover striped bordered className="bg-white shadow-sm">

@@ -22,10 +22,14 @@ export default function Sidebar() {
 
       {/* --- Navegación --- */}
       <Nav className="flex-column flex-grow-1" as="nav">
+        <NavLink end className="nav-link" to={"/"}>Inicio</NavLink>
         <NavLink end className="nav-link" to={"/proveedores"}>Proveedores</NavLink>
         <NavLink end className="nav-link" to={"/equipos"}>Equipos</NavLink>
         <NavLink end className="nav-link" to={"/ordenes"}>Ordenes de compra</NavLink>
-        
+        <NavLink end className="nav-link" to={"/contratos"}>Contratos</NavLink>
+        <NavLink end className="nav-link" to={"/calificaciones"}>Calificaciones</NavLink>
+        <NavLink end className="nav-link" to={"/tecnicos"}>Técnicos</NavLink>
+
       </Nav>
 
       {/* --- Sección de Usuario y Logout --- */}

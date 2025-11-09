@@ -78,13 +78,16 @@ const Ordenes = () => {
         <div className="p-4">
             <div className="d-flex align-items-center justify-content-between mb-3">
                 <h2 className="mb-0">Órdenes</h2>
-            </div>
-
-            <div className="mb-3">
-                <InputGroup>
+                <InputGroup style={{ width: '50%', maxWidth: 900 }}>
                     <Form.Control placeholder="Buscar por id, descripción, item, contrato o estado..." value={q} onChange={(e) => setQ(e.target.value)} />
                     <Button variant="outline-secondary" onClick={() => setQ('')}>Limpiar</Button>
                 </InputGroup>
+            </div>
+
+            <div className="mb-3">
+                <div className="d-flex justify-content-end">
+                    <Button variant="primary" onClick={() => alert('Acción: realizar orden de compra')}>Realizar orden de compra</Button>
+                </div>
             </div>
 
             <Table responsive hover striped bordered className="bg-white shadow-sm">
