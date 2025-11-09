@@ -1,0 +1,31 @@
+{
+    "proveedores":[
+    {
+        "id": 1,
+        "razonSocial": "Distribuciones SA",
+        "cuit": "30-12345678-9",
+        "telefono": "+54 11 1234-5678",
+        "email": "ventas@distribuciones.com",
+        "rubro": "Alimentos",
+        "rating": 4
+    },
+    {
+        "id": 2,
+        "razonSocial": "Suministros SRL",
+        "cuit": "33-87654321-0",
+        "telefono": "+54 11 8765-4321",
+        "email": "info@suministros.com",
+        "rubro": "Limpieza",
+        "rating": 3
+    },
+    {
+        "id": 3,
+        "razonSocial": "TecnoParts",
+        "cuit": "27-11223344-5",
+        "telefono": "+54 11 1122-3344",
+        "email": "contacto@tecnoparts.com",
+        "rubro": "Electrónica",
+        "rating": 5
+    }
+]
+}
