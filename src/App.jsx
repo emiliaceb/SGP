@@ -10,6 +10,10 @@ import Ordenes from "./components/Pages/Ordenes";
 import Contratos from "./components/Pages/Contratos";
 import Calificaciones from "./components/Pages/Calificaciones"; 
 import Tecnicos from "./components/Pages/Tecnicos";
+import Reclamos from "./components/Pages/Reclamos";
+import Intervenciones from "./components/Pages/Intervenciones";
+import Auditoria from "./components/Pages/Auditoria";
+
 
 
 function App() {
@@ -32,6 +36,9 @@ function App() {
             <Route path="/contratos" element={<Contratos />} />
             <Route path="/calificaciones" element={<Calificaciones />} />
             <Route path="/tecnicos" element={<Tecnicos />} />
+            <Route path="/reclamos" element={<Reclamos />} />
+            <Route path="/intervenciones" element={<Intervenciones />} />
+            <Route path="/auditoria" element={<Auditoria />} />
           </Routes>
         </main>
       </div>

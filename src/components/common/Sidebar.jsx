@@ -29,6 +29,9 @@ export default function Sidebar() {
         <NavLink end className="nav-link" to={"/contratos"}>Contratos</NavLink>
         <NavLink end className="nav-link" to={"/calificaciones"}>Calificaciones</NavLink>
         <NavLink end className="nav-link" to={"/tecnicos"}>Técnicos</NavLink>
+        <NavLink end className="nav-link" to={"/reclamos"}>Reclamos</NavLink>
+        <NavLink end className="nav-link" to={"/intervenciones"}>Intervenciones</NavLink>
+        <NavLink end className="nav-link" to={"/auditoria"}>Auditoría</NavLink>
 
       </Nav>
 

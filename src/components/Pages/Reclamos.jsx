@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Table, Button, InputGroup, Form } from 'react-bootstrap';
 
 const sample = [
-  { id: 1, empleado: 'Ana Ruiz', idOrden: 'OC-1001', equipo: 'EQ-204', nombreEquipo: 'Monitor 27\" 4K', fecha: '2025-10-02', descripcion: 'Pantalla con pixels muertos', prioridad: 'Alta', estado: 'Abierto' },
+  { id: 1, empleado: 'Ana Ruiz', idOrden: 'OC-1001', equipo: 'EQ-204', nombreEquipo: 'Monitor 27" 4K', fecha: '2025-10-02', descripcion: 'Pantalla con pixels muertos', prioridad: 'Alta', estado: 'Abierto' },
   { id: 2, empleado: 'Jorge Díaz', idOrden: 'OC-1002', equipo: 'IT-1001', nombreEquipo: 'Papel A4', fecha: '2025-09-12', descripcion: 'Entrega incompleta', prioridad: 'Media', estado: 'En proceso' },
   { id: 3, empleado: 'María López', idOrden: 'OC-1003', equipo: 'CS-78', nombreEquipo: 'Silla ergonómica', fecha: '2025-08-21', descripcion: 'Ruedas dañadas', prioridad: 'Baja', estado: 'Cerrado' },
 ];

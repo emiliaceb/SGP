@@ -1,10 +1,12 @@
 import React from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { crearProveedorAPI } from "../../../helpers/qeries";
 import Swal from "sweetalert2";
 
 export default function FormularioNuevoProveedor({ onCreate }) {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -35,6 +37,15 @@ export default function FormularioNuevoProveedor({ onCreate }) {
         icon: "success",
         draggable: true,
       });
+      // notificar al padre si provee callback para actualizar lista en UI
+      if (typeof onCreate === 'function') {
+        try {
+          // si la API devolviera el recurso creado, podríamos pasarlo; por ahora pasamos los datos
+          onCreate(data);
+        } catch (e) {
+          console.warn('onCreate callback falló', e);
+        }
+      }
       reset();
     } else {
       Swal.fire({
@@ -46,8 +57,21 @@ export default function FormularioNuevoProveedor({ onCreate }) {
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <h2 className="text-center">Nuevo Proveedor</h2>
+    <Form onSubmit={handleSubmit(onSubmit)} className="position-relative">
+      <div className="position-relative">
+        <h2 className="text-center">Nuevo Proveedor</h2>
+        {/* Botón X para cerrar y volver a la lista de proveedores */}
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => navigate('/proveedores')}
+          aria-label="Cerrar formulario"
+          className="position-absolute top-0 end-0 m-3 text-white"
+          style={{ lineHeight: 1 }}
+        >
+          ✕
+        </Button>
+      </div>
       <hr />
       <Row className="mb-3">
         <Col>
