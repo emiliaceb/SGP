@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Table, Button, Form, InputGroup } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const sampleOrders = [
     {
@@ -86,7 +87,7 @@ const Ordenes = () => {
 
             <div className="mb-3">
                 <div className="d-flex justify-content-end">
-                    <Button variant="primary" onClick={() => alert('Acción: realizar orden de compra')}>Realizar orden de compra</Button>
+                    <Link to="/ordenes/formularionuevaod" className="btn btn-primary">Realizar orden de compra</Link>
                 </div>
             </div>
 

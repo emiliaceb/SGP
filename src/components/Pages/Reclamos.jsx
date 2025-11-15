@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Table, Button, InputGroup, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const sample = [
   { id: 1, empleado: 'Ana Ruiz', idOrden: 'OC-1001', equipo: 'EQ-204', nombreEquipo: 'Monitor 27" 4K', fecha: '2025-10-02', descripcion: 'Pantalla con pixels muertos', prioridad: 'Alta', estado: 'Abierto' },
@@ -46,7 +47,7 @@ export default function Reclamos() {
 
       <div className="mb-3">
         <div className="d-flex justify-content-end">
-          <Button variant="primary" onClick={() => alert('Acción: crear nuevo reclamo')}>Nuevo reclamo</Button>
+          <Link to="/reclamos/nuevo" className="btn btn-primary">Nuevo reclamo</Link>
         </div>
       </div>
 

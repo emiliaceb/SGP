@@ -42,5 +42,25 @@
       "pais": "Argentina",
       "id": 3
     }
-  ]
+  ],
+  "equipos":[
+    {
+      "id": 1,
+      "tipo": "Impresora",
+      "marca": "HP",
+      "modelo": "LaserJet Pro M15w",
+      "numeroDeSerie": "SN123456789",
+      "ubicacion": "Oficina Central",
+      "estado": "Operativo"
+    },
+    {
+      "id": 2,
+      "tipo": "Router",
+      "marca": "Cisco",
+      "modelo": "RV340",
+      "numeroDeSerie": "SN987654321",
+      "ubicacion": "Sala de Servidores",
+      "estado": "En reparación"
+    }
+    ]
 }

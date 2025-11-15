@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Table, Button, InputGroup, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 export default function Contratos() {
   const [query, setQuery] = useState('');
@@ -42,6 +43,12 @@ export default function Contratos() {
           <Form.Control placeholder="Buscar proveedor, descripción o archivo" value={query} onChange={(e) => setQuery(e.target.value)} />
           <Button variant="outline-secondary" onClick={() => setQuery('')}>Limpiar</Button>
         </InputGroup>
+      </div>
+
+      <div className="mb-3">
+        <div className="d-flex justify-content-end">
+          <Link to="/contratos/formularionuevocontrato" className="btn btn-primary">Agregar contrato</Link>
+        </div>
       </div>
 
       <div className="table-responsive">

@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { Table, Button, InputGroup, Form } from 'react-bootstrap';
 
 const sample = [
-  { id: 1, idReclamo: 'R-1001', fecha: '2025-10-05', descripcionProblema: 'Pantalla no enciende', trabajoRealizado: 'Reemplacé fuente de alimentación', estado: 'Cerrado' },
-  { id: 2, idReclamo: 'R-1002', fecha: '2025-10-10', descripcionProblema: 'Impresora con atascos', trabajoRealizado: 'Limpieza rodillos y calibración', estado: 'En proceso' },
-  { id: 3, idReclamo: 'R-1003', fecha: '2025-11-01', descripcionProblema: 'Silla con rueda rota', trabajoRealizado: 'Reemplacé rueda', estado: 'Cerrado' },
+  { id: 1, idReclamo: 'R-1001', fecha: '2025-10-05', tecnico: 'Juan Pérez', descripcionProblema: 'Pantalla no enciende', trabajoRealizado: 'Reemplacé fuente de alimentación', estado: 'Cerrado' },
+  { id: 2, idReclamo: 'R-1002', fecha: '2025-10-10', tecnico: 'María López', descripcionProblema: 'Impresora con atascos', trabajoRealizado: 'Limpieza rodillos y calibración', estado: 'En proceso' },
+  { id: 3, idReclamo: 'R-1003', fecha: '2025-11-01', tecnico: 'Carlos Gómez', descripcionProblema: 'Silla con rueda rota', trabajoRealizado: 'Reemplacé rueda', estado: 'Cerrado' },
 ];
 
 export default function Intervenciones() {
@@ -43,6 +43,12 @@ export default function Intervenciones() {
         </InputGroup>
       </div>
 
+      <div className="mb-3">
+        <div className="d-flex justify-content-end">
+          <Button variant="primary">Agregar intervención</Button>
+        </div>
+      </div>
+
       <div className="table-responsive">
         <Table responsive hover striped bordered className="bg-white shadow-sm">
           <thead className="table-dark">
@@ -50,6 +56,7 @@ export default function Intervenciones() {
               <th>ID Intervención</th>
               <th>ID Reclamo</th>
               <th>Fecha</th>
+              <th>Técnico</th>
               <th>Descripción del problema</th>
               <th>Trabajo realizado</th>
               <th>Estado</th>
@@ -62,6 +69,7 @@ export default function Intervenciones() {
                 <td>{it.id}</td>
                 <td>{it.idReclamo}</td>
                 <td>{it.fecha}</td>
+                <td>{it.tecnico}</td>
                 <td style={{ maxWidth: 300 }}>{it.descripcionProblema}</td>
                 <td style={{ maxWidth: 300 }}>{it.trabajoRealizado}</td>
                 <td>{it.estado}</td>
@@ -76,7 +84,7 @@ export default function Intervenciones() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-center">No se encontraron intervenciones.</td>
+                <td colSpan={8} className="text-center">No se encontraron intervenciones.</td>
               </tr>
             )}
           </tbody>
