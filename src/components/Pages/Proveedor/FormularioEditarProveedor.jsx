@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { crearProveedorAPI } from "../../../helpers/qeries";
+import {
+  crearProveedor,
+  actualizarProveedor,
+  obtenerProveedorPorId,
+} from "../../../api/proveedoresApi";
 import Swal from "sweetalert2";
 
 export default function FormularioNuevoProveedor({ onCreate }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const proveedorEdit = location?.state?.proveedor || null;
+  const isEdit = Boolean(location?.state?.edit && proveedorEdit);
+  const [loadingProveedor, setLoadingProveedor] = useState(false);
+  const [direccionesList, setDireccionesList] = useState([]);
+  const [newCalle, setNewCalle] = useState("");
+  const [newNumero, setNewNumero] = useState("");
+  const [newLocalidad, setNewLocalidad] = useState("");
+  const [newProvincia, setNewProvincia] = useState("");
+  const [newPais, setNewPais] = useState("");
   const {
     register,
     handleSubmit,
@@ -28,38 +43,94 @@ export default function FormularioNuevoProveedor({ onCreate }) {
     },
   });
 
+  // precargar datos si venimos a editar
+  useEffect(() => {
+    if (!(isEdit && proveedorEdit)) return;
+
+    let mounted = true;
+    const fetchProveedor = async () => {
+      setLoadingProveedor(true);
+      try {
+        const fresh = await obtenerProveedorPorId(proveedorEdit.cuit);
+        if (!mounted) return;
+        // mapear campos del proveedor recibido al formulario
+        const received = {
+          razonSocial: fresh?.razon_social || proveedorEdit.razon_social || "",
+          cuit: fresh?.cuit || proveedorEdit.cuit || "",
+          telefono: fresh?.telefono || proveedorEdit.telefono || "",
+          email: fresh?.email || proveedorEdit.email || "",
+          rubro: fresh?.rubros || proveedorEdit.rubros || "",
+          tipo: fresh?.tipo || proveedorEdit.tipo || "CASA CENTRAL",
+          calle: "",
+          numero: "",
+          localidad: "",
+          provincia: "",
+          pais: "",
+        };
+        reset(received);
+
+        // parsear direcciones a lista (separa por saltos de linea o punto y coma)
+        const parseDirecciones = (s) => {
+          if (!s) return [];
+          return String(s)
+            .split(/\r?\n|;/)
+            .map((x) => x.trim())
+            .filter(Boolean);
+        };
+
+        setDireccionesList(parseDirecciones(fresh?.direcciones || proveedorEdit.direcciones));
+      } catch (err) {
+        console.error('Error cargando proveedor para edición:', err);
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar los datos del proveedor.' });
+      } finally {
+        if (mounted) setLoadingProveedor(false);
+      }
+    };
+
+    fetchProveedor();
+    return () => { mounted = false; };
+  }, [isEdit, proveedorEdit, reset]);
+
   const onSubmit = async (data) => {
-    // pedirle a la api crear el proveedor
-    const respuesta = await crearProveedorAPI(data);
-    if (respuesta.status === 201) {
-      Swal.fire({
-        title: "Proveedor creado correctamente!",
-        icon: "success",
-        draggable: true,
-      });
-      // notificar al padre si provee callback para actualizar lista en UI
-      if (typeof onCreate === 'function') {
-        try {
-          // si la API devolviera el recurso creado, podríamos pasarlo; por ahora pasamos los datos
-          onCreate(data);
-        } catch (e) {
-          console.warn('onCreate callback falló', e);
+    try {
+      if (isEdit && proveedorEdit) {
+        // actualizar
+        const updated = await actualizarProveedor(proveedorEdit.cuit, {
+          razon_social: data.razonSocial,
+          telefono: data.telefono,
+          email: data.email,
+          rubros: data.rubro,
+          direcciones: (direccionesList || []).join("; "),
+        });
+        Swal.fire({ title: "Proveedor actualizado!", icon: "success" });
+        // navegar de vuelta pasando el proveedor actualizado para actualizar la lista local
+        navigate("/proveedores", { state: { updatedProveedor: updated } });
+      } else {
+        // crear
+        // agregar direcciones al payload de creación
+        data.direcciones = (direccionesList || []).join("; ");
+        const respuesta = await crearProveedorAPI(data);
+        if (respuesta && respuesta.status === 201) {
+          Swal.fire({ title: "Proveedor creado correctamente!", icon: "success", draggable: true });
+          if (typeof onCreate === 'function') {
+            try { onCreate(data); } catch (e) { console.warn('onCreate callback falló', e); }
+          }
+          reset();
+          navigate('/proveedores');
+        } else {
+          throw new Error('Error al crear proveedor');
         }
       }
-      reset();
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Ocurrio un error",
-        text: "No se pudo crear el proveedor, intente nuevamente.",
-      });
+    } catch (err) {
+      console.error('Error en onSubmit proveedor:', err);
+      Swal.fire({ icon: 'error', title: 'Ocurrió un error', text: String(err) });
     }
   };
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} className="position-relative">
       <div className="position-relative">
-        <h2 className="text-center">Nuevo Proveedor</h2>
+        <h2 className="text-center">{isEdit ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h2>
         {/* Botón X para cerrar y volver a la lista de proveedores */}
         <Button
           variant="danger"
@@ -107,6 +178,7 @@ export default function FormularioNuevoProveedor({ onCreate }) {
                 maxLength: { value: 11, message: "CUIT inválido" },
               })}
               isInvalid={!!errors.cuit}
+              disabled={isEdit}
             />
             <Form.Control.Feedback type="invalid">
               {errors.cuit && errors.cuit.message}
@@ -192,6 +264,105 @@ export default function FormularioNuevoProveedor({ onCreate }) {
               {errors.tipo && errors.tipo.message}
             </Form.Control.Feedback>
           </Form.Group>
+        </Col>
+      </Row>
+
+      {/* Direcciones: lista no editable con botón para quitar y campo para agregar */}
+      <Row className="mb-3">
+        <Col>
+          <Form.Label>Direcciones</Form.Label>
+          <div className="mb-2">
+            {(direccionesList || []).length === 0 && (
+              <div className="text-muted">Sin direcciones</div>
+            )}
+            {(direccionesList || []).map((d, i) => (
+              <div key={i} className="d-flex align-items-center mb-1">
+                <div className="flex-grow-1 pe-2">
+                  <small className="d-block">{d}</small>
+                </div>
+                <div>
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => setDireccionesList((prev) => prev.filter((_, idx) => idx !== i))}
+                    aria-label={`borrar-direccion-${i}`}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-2 border rounded">
+            <Row className="mb-2">
+              <Col md={8}>
+                <Form.Control
+                  placeholder="Calle"
+                  value={newCalle}
+                  onChange={(e) => setNewCalle(e.target.value)}
+                />
+              </Col>
+              <Col md={4}>
+                <Form.Control
+                  placeholder="Número"
+                  value={newNumero}
+                  onChange={(e) => setNewNumero(e.target.value)}
+                />
+              </Col>
+            </Row>
+
+            <Row className="mb-2">
+              <Col md={4}>
+                <Form.Control
+                  placeholder="Localidad"
+                  value={newLocalidad}
+                  onChange={(e) => setNewLocalidad(e.target.value)}
+                />
+              </Col>
+              <Col md={4}>
+                <Form.Control
+                  placeholder="Provincia"
+                  value={newProvincia}
+                  onChange={(e) => setNewProvincia(e.target.value)}
+                />
+              </Col>
+              <Col md={4}>
+                <Form.Control
+                  placeholder="País"
+                  value={newPais}
+                  onChange={(e) => setNewPais(e.target.value)}
+                />
+              </Col>
+            </Row>
+
+            <div className="d-flex justify-content-end">
+              <Button
+                onClick={() => {
+                  const parts = [];
+                  if (newCalle && newCalle.trim()) parts.push(newCalle.trim());
+                  if (newNumero && newNumero.trim()) parts.push(newNumero.trim());
+                  const addrRest = [];
+                  if (newLocalidad && newLocalidad.trim()) addrRest.push(newLocalidad.trim());
+                  if (newProvincia && newProvincia.trim()) addrRest.push(newProvincia.trim());
+                  if (newPais && newPais.trim()) addrRest.push(newPais.trim());
+                  const full = parts.length ? parts.join(" ") + (addrRest.length ? ", " + addrRest.join(", ") : "") : (addrRest.join(", ") || "");
+                  const v = (full || "").trim();
+                  if (!v) return;
+                  setDireccionesList((prev) => [v, ...(prev || [])]);
+                  // limpiar campos
+                  setNewCalle("");
+                  setNewNumero("");
+                  setNewLocalidad("");
+                  setNewProvincia("");
+                  setNewPais("");
+                }}
+                disabled={!(newCalle.trim() || newLocalidad.trim() || newProvincia.trim() || newPais.trim() || newNumero.trim())}
+              >
+                Agregar nueva dirección
+              </Button>
+            </div>
+          </div>
         </Col>
       </Row>
 
@@ -298,7 +469,7 @@ export default function FormularioNuevoProveedor({ onCreate }) {
 
       <Row>
         <Col>
-          <Button type="submit" variant="primary" className="me-2">
+          <Button type="submit" variant="primary" className="me-2" disabled={loadingProveedor}>
             Guardar
           </Button>
           <Button type="button" variant="secondary" onClick={() => reset()}>

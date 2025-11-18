@@ -1,125 +1,119 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, InputGroup, Form } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { borrarProveedorAPI, LeerProveedoresAPI } from "../../helpers/qeries";
-import Swal from 'sweetalert2';
-
-const sampleProviders = [
-  {
-    id: 1,
-    razonSocial: "Distribuciones SA",
-    cuit: "30-12345678-9",
-    telefono: "+54 11 1234-5678",
-    email: "ventas@distribuciones.com",
-    rubro: "Alimentos",
-    rating: 4,
-  },
-  {
-    id: 2,
-    razonSocial: "Suministros SRL",
-    cuit: "33-87654321-0",
-    telefono: "+54 11 8765-4321",
-    email: "info@suministros.com",
-    rubro: "Limpieza",
-    rating: 3,
-  },
-  {
-    id: 3,
-    razonSocial: "TecnoParts",
-    cuit: "27-11223344-5",
-    telefono: "+54 11 1122-3344",
-    email: "contacto@tecnoparts.com",
-    rubro: "Electrónica",
-    rating: 5,
-  },
-];
+import ModalProveedor from "./Proveedor/ModalProveedor";
+import { Link, useLocation } from "react-router-dom";
+import {
+  obtenerProveedores as obtenerProveedoresAPI,
+  eliminarProveedor,
+} from "../../api/proveedoresApi";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Proveedores() {
   const [listaProveedores, setListaProveedores] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     obtenerProveedores();
   }, []);
 
-  // Inicializo con datos de ejemplo para que algo se vea antes de la API
-  useEffect(() => {
-    if (!listaProveedores || listaProveedores.length === 0) {
-      setListaProveedores(sampleProviders);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const obtenerProveedores = async () => {
     try {
-      const respuesta = await LeerProveedoresAPI();
-      if (respuesta && respuesta.status === 200) {
-        const datos = await respuesta.json();
-        setListaProveedores(datos);
-      }
+      setCargando(true);
+      setError(null);
+      console.log('🔍 Intentando obtener proveedores...');
+      console.log('API URL configurada:', import.meta.env.VITE_API_URL);
+      const datos = await obtenerProveedoresAPI();
+      console.log('✅ Datos recibidos:', datos);
+      console.log('🔍 Primer proveedor (estructura):', datos[0]);
+      setListaProveedores(datos || []);
     } catch (err) {
-      console.error("Error al leer proveedores:", err);
+      console.error("❌ Error al leer proveedores:", err);
+      setError(
+        `Error al cargar los proveedores: ${err.message}. Verifica que el backend esté corriendo en http://localhost:5001`
+      );
+      setListaProveedores([]);
+    } finally {
+      setCargando(false);
     }
   };
-  const borrarProveedor = async (id) => {
+
+  const borrarProveedor = async (cuit) => {
     const confirm = await Swal.fire({
-      title: '¿Estás seguro de eliminar el proveedor?',
-      text: 'No podrás revertir esto!',
-      icon: 'warning',
+      title: "¿Estás seguro de eliminar el proveedor?",
+      text: "No podrás revertir esto!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo!',
-      cancelButtonText: 'Cancelar'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminarlo!",
+      cancelButtonText: "Cancelar",
     });
 
     if (!confirm.isConfirmed) return;
 
     try {
-      const respuesta = await borrarProveedorAPI(id);
-      if (respuesta && (respuesta.status === 200 || respuesta.status === 204)) {
-        // actualizar lista local
-        setListaProveedores((prev) => (prev || []).filter((x) => x.id !== id));
-        Swal.fire('¡Eliminado!', 'El proveedor ha sido eliminado.', 'success');
-      } else {
-        console.error('Respuesta inesperada al borrar:', respuesta);
-        Swal.fire('Error', 'No se pudo eliminar el proveedor.', 'error');
-      }
+      await eliminarProveedor(cuit);
+      // actualizar lista local
+      setListaProveedores((prev) =>
+        (prev || []).filter((x) => x.cuit !== cuit)
+      );
+      Swal.fire("¡Eliminado!", "El proveedor ha sido eliminado.", "success");
     } catch (err) {
-      console.error('Error al borrar proveedor:', err);
-      Swal.fire('Error', 'Ocurrió un problema al eliminar el proveedor.', 'error');
+      console.error("Error al borrar proveedor:", err);
+      Swal.fire(
+        "Error",
+        "Ocurrió un problema al eliminar el proveedor.",
+        "error"
+      );
     }
+  };
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProveedor, setSelectedProveedor] = useState(null);
+
+  const abrirModal = (proveedor) => {
+    setSelectedProveedor(proveedor);
+    setShowModal(true);
   };
 
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const renderStars = (n) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          style={{ color: i <= n ? "#ffc107" : "#e9ecef", marginRight: 2 }}
-        >
-          {i <= n ? "★" : "☆"}
-        </span>
-      );
+  // Si venimos del formulario con un proveedor actualizado, aplicarlo a la lista local
+  useEffect(() => {
+    const updated = location?.state?.updatedProveedor;
+    if (updated) {
+      setListaProveedores((prev = []) => {
+        const idx = prev.findIndex((x) => x.cuit === updated.cuit);
+        if (idx >= 0) {
+          const copy = [...prev];
+          copy[idx] = { ...copy[idx], ...updated };
+          return copy;
+        }
+        // si no estaba en la lista, añadir al principio
+        return [updated, ...prev];
+      });
+      try {
+        // limpiar el state de la historia para que no se vuelva a aplicar al recargar
+        window.history.replaceState({}, document.title);
+      } catch (e) {
+        // no crítico
+      }
     }
-    return <span aria-label={`calificacion-${n}`}>{stars}</span>;
-  };
+  }, [location]);
 
   const qLower = q.trim().toLowerCase();
   const filtered = (listaProveedores || []).filter((p) => {
     if (!qLower) return true;
     return (
-      String(p.id).includes(qLower) ||
-      (p.razonSocial || "").toLowerCase().includes(qLower) ||
-      (p.cuit || "").toLowerCase().includes(qLower) ||
-      (p.telefono || "").toLowerCase().includes(qLower) ||
-      (p.email || "").toLowerCase().includes(qLower) ||
-      (p.rubro || "").toLowerCase().includes(qLower)
+      String(p.cuit || "").includes(qLower) ||
+      (p.razon_social || "").toLowerCase().includes(qLower) ||
+      (p.rubros || "").toLowerCase().includes(qLower)
     );
   });
-
-  
 
   return (
     <div className="p-4">
@@ -127,7 +121,7 @@ export default function Proveedores() {
         <h2 className="mb-0">Proveedores</h2>
         <InputGroup style={{ width: "50%", maxWidth: 900 }}>
           <Form.Control
-            placeholder="Buscar por id, razón social, CUIT, teléfono, email o rubro..."
+            placeholder="Buscar por CUIT, razón social o rubros..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -148,65 +142,107 @@ export default function Proveedores() {
         </div>
       </div>
 
-      <Table responsive hover striped bordered className="bg-white shadow-sm">
-        <thead className="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Razón Social</th>
-            <th>CUIT</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Rubro</th>
-            <th>Calificación</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((p) => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.razonSocial}</td>
-              <td>{p.cuit}</td>
-              <td>{p.telefono}</td>
-              <td>{p.email}</td>
-              <td>{p.rubro}</td>
-              <td>{renderStars(p.rating || 0)}</td>
-              <td>
-                <div
-                  className="d-flex gap-2 flex-nowrap"
-                  style={{ whiteSpace: "nowrap" }}
-                >
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    title="Ver"
-                    aria-label={`ver-${p.id}`}
-                  >
-                    👁️
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    title="Editar"
-                    aria-label={`editar-${p.id}`}
-                  >
-                    ✏️
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    title="Eliminar"
-                    aria-label={`eliminar-${p.id}`}
-                    onClick={() => borrarProveedor(p.id)}
-                  >
-                    🗑️
-                  </Button>
-                </div>
-              </td>
+      {cargando && (
+        <div className="alert alert-info">Cargando proveedores...</div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger">
+          {error}
+          <button
+            className="btn btn-sm btn-outline-danger ms-3"
+            onClick={obtenerProveedores}
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {!cargando && !error && listaProveedores.length === 0 && (
+        <div className="alert alert-warning">
+          No hay proveedores registrados
+        </div>
+      )}
+
+      {!cargando && !error && listaProveedores.length > 0 && (
+        <Table responsive hover striped bordered className="bg-white shadow-sm">
+          <thead className="table-dark">
+            <tr>
+              <th>CUIT</th>
+              <th>Razón Social</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th>Rubros</th>
+              <th>Direcciones</th>
+              <th>Fecha Alta</th>
+              <th style={{ width: 140 }}>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {filtered.map((p, index) => (
+              <tr key={p.cuit || `proveedor-${index}`}>
+                <td>{p.cuit || p.CUIT || '-'}</td>
+                <td>{p.razon_social || p['Razón Social'] || '-'}</td>
+                <td>{p.telefono || p['Teléfono'] || '-'}</td>
+                <td>{p.email || p.Email || "-"}</td>
+                <td>
+                  <small>{p.rubros || p.Rubros || "Sin rubros"}</small>
+                </td>
+                <td>
+                  <small>{p.direcciones || p.Direcciones || "Sin direcciones"}</small>
+                </td>
+                <td>
+                  {(p.alta || p['Fecha Alta']) ? new Date(p.alta || p['Fecha Alta']).toLocaleDateString("es-AR") : "-"}
+                </td>
+                <td>
+                  <div
+                    className="d-flex align-items-center justify-content-center"
+                    style={{ gap: 8, whiteSpace: "nowrap" }}
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      title="Ver"
+                      aria-label={`ver-${p.cuit || index}`}
+                      onClick={() => abrirModal(p)}
+                    >
+                      👁️
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline-secondary"
+                      title="Editar"
+                      aria-label={`editar-${p.cuit || index}`}
+                      onClick={() =>
+                        navigate("/proveedores/formularioEditarProveedores", {
+                          state: { proveedor: p, edit: true },
+                        })
+                      }
+                    >
+                      ✏️
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      title="Eliminar"
+                      aria-label={`eliminar-${p.cuit || index}`}
+                      onClick={() => borrarProveedor(p.cuit || p.CUIT)}
+                    >
+                      🗑️
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+
+      <ModalProveedor
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        proveedor={selectedProveedor}
+      />
     </div>
   );
 }

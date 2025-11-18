@@ -2,6 +2,7 @@ import Footer from "./components/common/Footer"
 import Menu from "./components/common/Menu"
 import Inicio from "./components/Pages/Inicio"
 import Sidebar from "./components/common/Sidebar";
+import TestComponent from "./components/TestComponent";
 import { BrowserRouter, Routes,Route } from "react-router-dom";
 import Proveedores from "./components/Pages/Proveedores";
 import FormularioNuevoProveedor from "./components/Pages/Proveedor/FormularioNuevoProveedor";
@@ -33,6 +34,7 @@ function App() {
         <main className="flex-grow-1 p-4">
           <Routes>
             <Route path="/" element={<Inicio />} />
+            <Route path="/test" element={<TestComponent />} />
             <Route path="/proveedores" element={<Proveedores />} />
             <Route path="/proveedores/formularionuevoproveedor" element={<FormularioNuevoProveedor />} />
             <Route path="/equipos" element={<Equipos />} />
